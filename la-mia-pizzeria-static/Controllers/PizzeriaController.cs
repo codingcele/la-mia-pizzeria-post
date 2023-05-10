@@ -18,7 +18,7 @@ namespace la_mia_pizzeria_static
         {
             using (PizzeriaContext db = new PizzeriaContext())
             {
-                List<Pizza> pizze = db.Pizze.ToList();
+                List<Pizza> pizze = db.Pizza.ToList();
 
                 return View(pizze);
             }
@@ -33,20 +33,39 @@ namespace la_mia_pizzeria_static
         {
             using (PizzeriaContext context = new PizzeriaContext())
             {
-                Pizza pizzaById = context.Pizze.Where(m => m.Id == id).FirstOrDefault();
+                Pizza pizzaById = context.Pizza.Where(m => m.Id == id).FirstOrDefault();
                 return View("Details", pizzaById);
             }
         }
 
-        //public IActionResult Details(int id)
-        //{
-        //    using (PizzeriaContext context = new PizzeriaContext())
-        //    {
-        //        var pizzaId = context.Pizze.FirstOrDefault(p => p.Id == id);
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Pizza data)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Create", data);
+            }
+            using (PizzeriaContext context = new PizzeriaContext())
+            {
+                Pizza pizzaToCreate = new Pizza();
+                pizzaToCreate.Image = data.Image;
+                pizzaToCreate.Name = data.Name;
+                pizzaToCreate.Ingredients = data.Ingredients;
+                pizzaToCreate.Price = data.Price;
+                context.Pizza.Add(pizzaToCreate);
+                context.SaveChanges();
 
-        //        return View("Details", pizzaId);
-        //    }
-        //}
+                return RedirectToAction("Index");
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View("Create");
+        }
 
     }
 }
